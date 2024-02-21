@@ -47,7 +47,6 @@ void Game::run()
 	const float fps{ 60.0f };
 	sf::Time timePerFrame = sf::seconds(1.0f / fps); // 60 fps
 
-	std::string fullTextEntry = testTextEntry();
 
 	while (m_window.isOpen())
 	{
@@ -60,7 +59,6 @@ void Game::run()
 			update(timePerFrame); //60 fps
 		}
 		render(); // as many as possible
-
 		
 	}
 }
@@ -170,6 +168,16 @@ void Game::render()
 		removeText(displayedText, m_coffeeTextExit);
 	}
 
+
+	// Draw the shape behind the text
+	adaptTextBox(m_coffeeTextEntry);
+	adaptTextBox(m_coffeeTextOrder);
+	adaptTextBox(m_coffeeTextExit);
+
+	// Draw the text box and text
+	//m_window.draw(textBox);
+
+
 	m_window.display();
 }
 
@@ -219,7 +227,7 @@ void Game::setupFontAndText()
 	// Order quote options here
 	m_coffeeMiddle.push_back("Can I get a.. Cappuccino please?");
 	m_coffeeMiddle.push_back("Hi, Latte when you can thank you!");
-	m_coffeeMiddle.push_back("Heyy, can I get 2 shots of Espresso? NO ONE ISN'T ENOUGH!");
+	m_coffeeMiddle.push_back("Heyy, can I get an Espresso?!");
 	m_coffeeMiddle.push_back("One Americano please, cream too please.");
 	m_coffeeMiddle.push_back("Do you guys do Mochas by chance?");
 
@@ -295,6 +303,7 @@ void Game::drawTextEntry()
 			m_coffeeTextEntry.setString(displayedText);
 			charIndexEntry++;
 			textClock.restart();
+			textBoxDisplayed = true;
 		}
 	}
 
@@ -326,6 +335,7 @@ void Game::drawTextOrder()
 			m_coffeeTextOrder.setString(displayedText);
 			charIndexOrder++;
 			textClock.restart();
+			textBoxDisplayed = true;
 		}
 	}
 
@@ -357,6 +367,7 @@ void Game::drawTextExit()
 			m_coffeeTextExit.setString(displayedText);
 			charIndexExit++;
 			textClock.restart();
+			textBoxDisplayed = true;
 		}
 	}
 
@@ -418,12 +429,37 @@ void Game::setDefaults()
 		m_exitActive = false;
 		m_entryActive = false;
 		m_orderActive = false;
-		finishedTyping = true;
+		finishedTyping = true;	
+		textBoxDisplayed = false;
 		typingSpeed = TYPE_SPEED_DEFAULT;
 		charIndexExit = 0;
 		charIndexEntry = 0;
 		charIndexOrder = 0;
+		
 		removalClock.restart();
+}
+
+void Game::adaptTextBox(sf::Text& text)
+{
+	// Get the local bounds of the text
+	sf::FloatRect textBounds = text.getLocalBounds();
+
+	// Create a rectangle shape to act as the text box
+	sf::RectangleShape textBox(sf::Vector2f(textBounds.width + 20, textBounds.height + 20));
+
+	textBox.setFillColor(sf::Color::Transparent);
+	textBox.setOutlineColor(sf::Color::White);
+	textBox.setOutlineThickness(2.0f);
+	textBox.setScale(1, 1);
 	
+	// Set the position of the text box relative to the text
+	// Negatives here are for neatness, not particular necessary
+	textBox.setPosition(text.getPosition().x - 10, text.getPosition().y - 8);
+
+	if (textBoxDisplayed)
+	{
+		m_window.draw(textBox);
+		m_window.draw(text);
+	}
 }
 
